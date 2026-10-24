@@ -1,0 +1,8 @@
+# Para correr el caso de estudio y medir cobertura
+pytest
+pytest-cov
+
+# Se agregan en la siguiente fase (agente)
+# pytest-bdd
+# langgraph
+# anthropic   (o el SDK del proveedor de modelo que elijas)
