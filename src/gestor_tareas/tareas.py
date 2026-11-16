@@ -1,15 +1,19 @@
-"""Sistema de gestión de tareas usado como caso de estudio.
-
-Las reglas de negocio de este módulo están descritas en las historias de
-usuario HU-01 a HU-07 del documento. El agente de generación de pruebas toma
-esas historias como insumo; este código es el sistema bajo prueba.
-"""
-from dataclasses import dataclass
+"""Sistema de gestión de tareas en memoria — caso de estudio del trabajo de grado."""
+from __future__ import annotations
+from dataclasses import dataclass, field
 from datetime import date
 from enum import Enum
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 
-LONGITUD_MAXIMA_TITULO = 100
+from .excepciones import ErrorValidacion, TareaNoEncontrada, OperacionNoPermitida
+
+TITULO_MAX = 100
+
+TRANSICIONES_VALIDAS = {
+    "pendiente": {"en_progreso"},
+    "en_progreso": {"terminada", "pendiente"},
+    "terminada": set(),
+}
 
 
 class EstadoTarea(str, Enum):
@@ -18,98 +22,47 @@ class EstadoTarea(str, Enum):
     TERMINADA = "terminada"
 
 
-class ErrorTareas(Exception):
-    """Error base del sistema de tareas."""
-
-
-class ErrorValidacion(ErrorTareas):
-    """Un dato de entrada no cumple las reglas de validación."""
-
-
-class TareaNoEncontrada(ErrorTareas):
-    """No existe una tarea con el identificador indicado."""
-
-
-class OperacionNoPermitida(ErrorTareas):
-    """La operación no es válida para el estado actual de la tarea."""
-
-
 @dataclass
 class Tarea:
     id: int
     titulo: str
     descripcion: str = ""
     fecha_limite: Optional[date] = None
-    responsable: Optional[str] = None
     estado: EstadoTarea = EstadoTarea.PENDIENTE
-
-
-# Transiciones de estado permitidas
-_TRANSICIONES = {
-    EstadoTarea.PENDIENTE: {EstadoTarea.EN_PROGRESO},
-    EstadoTarea.EN_PROGRESO: {EstadoTarea.PENDIENTE, EstadoTarea.TERMINADA},
-    EstadoTarea.TERMINADA: set(),
-}
+    responsable: Optional[str] = None
 
 
 class GestorTareas:
-    """Administra tareas en memoria.
-
-    El parámetro ``hoy`` permite inyectar la fecha actual, de modo que las
-    pruebas no dependan del reloj del sistema.
-    """
+    """Gestiona tareas en memoria. `hoy` es un callable que retorna la fecha actual
+    (inyección de dependencia para facilitar las pruebas)."""
 
     def __init__(self, hoy: Callable[[], date] = date.today):
-        self._hoy = hoy
         self._tareas: dict[int, Tarea] = {}
-        self._siguiente_id = 1
+        self._siguiente_id: int = 1
+        self._hoy = hoy
 
-    # ---------- validaciones internas ----------
-    def _validar_titulo(self, titulo: str) -> str:
-        if titulo is None or not titulo.strip():
-            raise ErrorValidacion("El título no puede estar vacío")
-        titulo = titulo.strip()
-        if len(titulo) > LONGITUD_MAXIMA_TITULO:
-            raise ErrorValidacion(
-                f"El título no puede superar {LONGITUD_MAXIMA_TITULO} caracteres"
-            )
-        return titulo
-
-    def _validar_fecha_limite(self, fecha_limite: Optional[date]) -> None:
-        if fecha_limite is not None and fecha_limite < self._hoy():
-            raise ErrorValidacion("La fecha límite no puede ser anterior a hoy")
-
-    def _convertir_estado(self, estado: Union[str, EstadoTarea]) -> EstadoTarea:
-        try:
-            return EstadoTarea(estado)
-        except ValueError:
-            raise ErrorValidacion(f"Estado desconocido: {estado!r}")
-
-    # ---------- HU-01 ----------
+    # ------------------------------------------------------------------ crear
     def crear_tarea(
         self,
         titulo: str,
         descripcion: str = "",
         fecha_limite: Optional[date] = None,
     ) -> Tarea:
-        titulo = self._validar_titulo(titulo)
-        self._validar_fecha_limite(fecha_limite)
+        """HU-01: crea una tarea nueva con estado pendiente."""
+        self._validar_titulo(titulo)
+        self._validar_fecha(fecha_limite)
+
         tarea = Tarea(
             id=self._siguiente_id,
-            titulo=titulo,
+            titulo=titulo.strip(),
             descripcion=descripcion,
             fecha_limite=fecha_limite,
         )
-        self._tareas[tarea.id] = tarea
+        self._tareas[self._siguiente_id] = tarea
         self._siguiente_id += 1
         return tarea
 
-    def obtener_tarea(self, id_tarea: int) -> Tarea:
-        if id_tarea not in self._tareas:
-            raise TareaNoEncontrada(f"No existe la tarea {id_tarea}")
-        return self._tareas[id_tarea]
-
-    # ---------- HU-02 ----------
+    # ------------------------------------------------------------------ editar
     def editar_tarea(
         self,
         id_tarea: int,
@@ -117,68 +70,107 @@ class GestorTareas:
         descripcion: Optional[str] = None,
         fecha_limite: Optional[date] = None,
     ) -> Tarea:
-        """Edita los campos recibidos; los que llegan como None no cambian."""
-        tarea = self.obtener_tarea(id_tarea)
+        """HU-02: edita el título, descripción o fecha límite de una tarea."""
+        tarea = self._obtener_o_lanzar(id_tarea)
         if tarea.estado == EstadoTarea.TERMINADA:
-            raise OperacionNoPermitida("Una tarea terminada no se puede editar")
-        # Se valida todo antes de modificar, para no dejar cambios a medias
+            raise OperacionNoPermitida("No se puede editar una tarea terminada.")
+
         if titulo is not None:
-            titulo = self._validar_titulo(titulo)
-        self._validar_fecha_limite(fecha_limite)
-        if titulo is not None:
-            tarea.titulo = titulo
+            self._validar_titulo(titulo)
+            tarea.titulo = titulo.strip()
         if descripcion is not None:
             tarea.descripcion = descripcion
         if fecha_limite is not None:
+            self._validar_fecha(fecha_limite)
             tarea.fecha_limite = fecha_limite
+
         return tarea
 
-    # ---------- HU-03 ----------
+    # ------------------------------------------------------------------ eliminar
     def eliminar_tarea(self, id_tarea: int) -> None:
-        self.obtener_tarea(id_tarea)
+        """HU-03: elimina la tarea; lanza TareaNoEncontrada si no existe."""
+        self._obtener_o_lanzar(id_tarea)
         del self._tareas[id_tarea]
 
-    # ---------- HU-04 ----------
-    def asignar_responsable(self, id_tarea: int, responsable: str) -> Tarea:
-        tarea = self.obtener_tarea(id_tarea)
+    # ------------------------------------------------------------------ responsable
+    def asignar_responsable(self, id_tarea: int, nombre: str) -> Tarea:
+        """HU-04: asigna un responsable a la tarea."""
+        tarea = self._obtener_o_lanzar(id_tarea)
         if tarea.estado == EstadoTarea.TERMINADA:
-            raise OperacionNoPermitida(
-                "No se puede asignar responsable a una tarea terminada"
-            )
-        if responsable is None or not responsable.strip():
-            raise ErrorValidacion("El responsable no puede estar vacío")
-        tarea.responsable = responsable.strip()
+            raise OperacionNoPermitida("No se puede asignar responsable a una tarea terminada.")
+        if not nombre or not nombre.strip():
+            raise ErrorValidacion("El nombre del responsable no puede estar vacío.")
+        tarea.responsable = nombre.strip()
         return tarea
 
-    # ---------- HU-05 ----------
-    def cambiar_estado(
-        self, id_tarea: int, nuevo_estado: Union[str, EstadoTarea]
-    ) -> Tarea:
-        tarea = self.obtener_tarea(id_tarea)
-        nuevo_estado = self._convertir_estado(nuevo_estado)
-        if nuevo_estado not in _TRANSICIONES[tarea.estado]:
+    # ------------------------------------------------------------------ estado
+    def cambiar_estado(self, id_tarea: int, nuevo_estado: str) -> Tarea:
+        """HU-05: cambia el estado de la tarea según las transiciones permitidas."""
+        tarea = self._obtener_o_lanzar(id_tarea)
+
+        estados_validos = {e.value for e in EstadoTarea}
+        if nuevo_estado not in estados_validos:
+            raise ErrorValidacion(f"Estado desconocido: '{nuevo_estado}'.")
+
+        estado_actual = tarea.estado.value
+        if nuevo_estado not in TRANSICIONES_VALIDAS.get(estado_actual, set()):
             raise OperacionNoPermitida(
-                f"No se puede pasar de {tarea.estado.value} a {nuevo_estado.value}"
+                f"No se puede pasar de '{estado_actual}' a '{nuevo_estado}'."
             )
-        if nuevo_estado == EstadoTarea.EN_PROGRESO and not tarea.responsable:
+
+        if nuevo_estado == EstadoTarea.EN_PROGRESO.value and not tarea.responsable:
             raise OperacionNoPermitida(
-                "Para iniciar una tarea debe tener un responsable asignado"
+                "Para pasar a 'en progreso' la tarea debe tener responsable."
             )
-        tarea.estado = nuevo_estado
+
+        tarea.estado = EstadoTarea(nuevo_estado)
         return tarea
 
-    # ---------- HU-06 ----------
-    def filtrar_por_estado(self, estado: Union[str, EstadoTarea]) -> list[Tarea]:
-        estado = self._convertir_estado(estado)
-        return [t for t in self._tareas.values() if t.estado == estado]
+    # ------------------------------------------------------------------ filtrar
+    def filtrar_por_estado(self, estado: str) -> list[Tarea]:
+        """HU-06: retorna las tareas con el estado indicado."""
+        estados_validos = {e.value for e in EstadoTarea}
+        if estado not in estados_validos:
+            raise ErrorValidacion(f"Estado desconocido: '{estado}'.")
+        return [t for t in self._tareas.values() if t.estado.value == estado]
 
-    # ---------- HU-07 ----------
     def filtrar_por_fecha(self, desde: date, hasta: date) -> list[Tarea]:
-        """Tareas cuya fecha límite está entre ``desde`` y ``hasta`` (inclusive)."""
+        """HU-07: retorna las tareas cuya fecha límite cae dentro del rango."""
         if desde > hasta:
-            raise ErrorValidacion("La fecha inicial no puede ser posterior a la final")
+            raise ErrorValidacion(
+                f"La fecha inicial ({desde}) no puede ser posterior a la final ({hasta})."
+            )
         return [
-            t
-            for t in self._tareas.values()
+            t for t in self._tareas.values()
             if t.fecha_limite is not None and desde <= t.fecha_limite <= hasta
         ]
+
+    # ------------------------------------------------------------------ consulta
+    def obtener_tarea(self, id_tarea: int) -> Tarea:
+        """Retorna la tarea o lanza TareaNoEncontrada."""
+        return self._obtener_o_lanzar(id_tarea)
+
+    def listar_tareas(self) -> list[Tarea]:
+        """Retorna todas las tareas."""
+        return list(self._tareas.values())
+
+    # ------------------------------------------------------------------ privados
+    def _obtener_o_lanzar(self, id_tarea: int) -> Tarea:
+        tarea = self._tareas.get(id_tarea)
+        if tarea is None:
+            raise TareaNoEncontrada(f"No existe la tarea con id {id_tarea}.")
+        return tarea
+
+    def _validar_titulo(self, titulo: str) -> None:
+        if not titulo or not titulo.strip():
+            raise ErrorValidacion("El título no puede estar vacío.")
+        if len(titulo.strip()) > TITULO_MAX:
+            raise ErrorValidacion(
+                f"El título supera los {TITULO_MAX} caracteres permitidos."
+            )
+
+    def _validar_fecha(self, fecha: Optional[date]) -> None:
+        if fecha is not None and fecha < self._hoy():
+            raise ErrorValidacion(
+                f"La fecha límite ({fecha}) no puede ser anterior a hoy ({self._hoy()})."
+            )
