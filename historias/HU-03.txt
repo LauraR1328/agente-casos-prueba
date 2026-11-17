@@ -1,0 +1,1 @@
+Como usuario, quiero eliminar una tarea, para quitar lo que ya no es necesario. CA1. La tarea deja de existir y no aparece en ninguna consulta. CA2. Las demás tareas no se ven afectadas. CA3. Si la tarea no existe, se informa el error.

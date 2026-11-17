@@ -1,8 +1,17 @@
-# Para correr el caso de estudio y medir cobertura
-pytest
-pytest-cov
+# Dependencias del proyecto — agente-casos-prueba
+# Instalar con: pip install -r requirements.txt
 
-# Se agregan en la siguiente fase (agente)
-# pytest-bdd
-# langgraph
-# anthropic   (o el SDK del proveedor de modelo que elijas)
+# Orquestación del agente
+langgraph>=0.2.0
+
+# SDK del modelo de lenguaje
+anthropic>=0.34.0
+
+# Pruebas y cobertura
+pytest>=9.0.0
+pytest-cov>=5.0.0
+pytest-bdd>=7.0.0
+
+# Utilidades
+python-dotenv>=1.0.0
+python-docx>=1.1.0

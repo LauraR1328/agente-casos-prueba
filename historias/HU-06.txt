@@ -1,0 +1,1 @@
+Como usuario, quiero filtrar las tareas por estado, para ver en qué punto está cada una. CA1. Devuelve solo las tareas que tienen ese estado. CA2. Si ninguna coincide, devuelve una lista vacía. CA3. Un estado desconocido se rechaza.

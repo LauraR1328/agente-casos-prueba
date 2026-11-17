@@ -1,0 +1,1 @@
+Como usuario, quiero asignar un responsable a una tarea, para saber quién se encarga. CA1. El nombre queda guardado sin espacios sobrantes. CA2. Un nombre vacío o de solo espacios se rechaza. CA3. Reasignar reemplaza al responsable anterior. CA4. Si la tarea no existe, se informa el error. CA5. No se puede asignar responsable a una tarea terminada.

@@ -1,0 +1,1 @@
+Como usuario, quiero ver las tareas cuya fecha límite cae dentro de un rango, para planear mi semana. CA1. Devuelve las tareas con fecha dentro del rango, incluidos los extremos. CA2. Las tareas sin fecha límite no aparecen. CA3. Si la fecha inicial es posterior a la final, se rechaza. CA4. Si ninguna coincide, devuelve una lista vacía.

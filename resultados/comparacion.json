@@ -1,0 +1,182 @@
+{
+  "fecha": "2026-11-12T21:17:54.762475",
+  "repeticiones": 3,
+  "cobertura_manual": 77.0,
+  "historias": {
+    "HU-01": {
+      "repeticiones": [
+        {
+          "cobertura": 77.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 23,
+          "duracion_seg": 120.1
+        },
+        {
+          "cobertura": 76.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 24,
+          "duracion_seg": 116.3
+        },
+        {
+          "cobertura": 60.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 40,
+          "duracion_seg": 110.8
+        }
+      ],
+      "cobertura_min": 60.0,
+      "cobertura_max": 77.0,
+      "cobertura_media": 71.0
+    },
+    "HU-02": {
+      "repeticiones": [
+        {
+          "cobertura": 70.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 30,
+          "duracion_seg": 105.0
+        },
+        {
+          "cobertura": 70.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 30,
+          "duracion_seg": 122.5
+        },
+        {
+          "cobertura": 86.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 14,
+          "duracion_seg": 126.7
+        }
+      ],
+      "cobertura_min": 70.0,
+      "cobertura_max": 86.0,
+      "cobertura_media": 75.33
+    },
+    "HU-03": {
+      "repeticiones": [
+        {
+          "cobertura": 60.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 40,
+          "duracion_seg": 128.3
+        },
+        {
+          "cobertura": 77.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 23,
+          "duracion_seg": 130.8
+        },
+        {
+          "cobertura": 76.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 24,
+          "duracion_seg": 126.4
+        }
+      ],
+      "cobertura_min": 60.0,
+      "cobertura_max": 77.0,
+      "cobertura_media": 71.0
+    },
+    "HU-04": {
+      "repeticiones": [
+        {
+          "cobertura": 75.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 25,
+          "duracion_seg": 126.3
+        },
+        {
+          "cobertura": 62.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 38,
+          "duracion_seg": 116.9
+        },
+        {
+          "cobertura": 74.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 26,
+          "duracion_seg": 118.7
+        }
+      ],
+      "cobertura_min": 62.0,
+      "cobertura_max": 75.0,
+      "cobertura_media": 70.33
+    },
+    "HU-05": {
+      "repeticiones": [
+        {
+          "cobertura": 68.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 32,
+          "duracion_seg": 115.4
+        },
+        {
+          "cobertura": 65.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 35,
+          "duracion_seg": 113.5
+        },
+        {
+          "cobertura": 73.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 27,
+          "duracion_seg": 119.7
+        }
+      ],
+      "cobertura_min": 65.0,
+      "cobertura_max": 73.0,
+      "cobertura_media": 68.67
+    },
+    "HU-06": {
+      "repeticiones": [
+        {
+          "cobertura": 76.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 24,
+          "duracion_seg": 123.8
+        },
+        {
+          "cobertura": 73.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 27,
+          "duracion_seg": 128.9
+        },
+        {
+          "cobertura": 72.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 28,
+          "duracion_seg": 132.5
+        }
+      ],
+      "cobertura_min": 72.0,
+      "cobertura_max": 76.0,
+      "cobertura_media": 73.67
+    },
+    "HU-07": {
+      "repeticiones": [
+        {
+          "cobertura": 72.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 28,
+          "duracion_seg": 120.3
+        },
+        {
+          "cobertura": 53.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 47,
+          "duracion_seg": 123.3
+        },
+        {
+          "cobertura": 57.0,
+          "iteraciones": 3,
+          "lineas_no_cubiertas": 43,
+          "duracion_seg": 119.8
+        }
+      ],
+      "cobertura_min": 53.0,
+      "cobertura_max": 72.0,
+      "cobertura_media": 60.67
+    }
+  }
+}
